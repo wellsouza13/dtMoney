@@ -6,7 +6,6 @@ import { Container, TransactionTypeContainer, RadioBox } from "./styles";
 import closeImg from "../../assets/close.svg";
 import incomeImage from "../../assets/income.svg";
 import outcomeImg from "../../assets/outcome.svg";
-import { api } from "../../services/api";
 import { useTransactions } from "../../hooks/useTransaction";
 
 interface NewTransactionsModalProps {
@@ -28,6 +27,7 @@ export function NewTransactionsModal({
 
   async function handleSubmitTransaction(event: FormEvent) {
     event.preventDefault();
+    console.log(event)
     await createTransaction({
       title,
       amount: value,

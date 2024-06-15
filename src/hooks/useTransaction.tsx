@@ -5,11 +5,10 @@ import {
   ReactNode,
   useContext,
 } from 'react';
-import { db } from '../firebaseConfig';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { fetchTransactions, createTransaction as createTransactionAPI } from '../services/transactions';
 
 interface Transactions {
-  id: string; // Ajuste o tipo do ID para string, conforme necessário para o Firestore
+  id: string;
   title: string;
   amount: number;
   type: string;
@@ -25,7 +24,7 @@ type TransactionInputProps = Omit<Transactions, 'id' | 'createdAt'>;
 
 interface TransactionContextDataProps {
   transactions: Transactions[];
-  createTransaction: (transactionInput: TransactionInputProps) => Promise<void>;
+  createTransaction: (transactions: TransactionInputProps) => Promise<void>;
 }
 
 const TransactionsContext = createContext<TransactionContextDataProps>(
@@ -36,24 +35,16 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transactions[]>([]);
 
   useEffect(() => {
-    async function fetchTransactions() {
-      const querySnapshot = await getDocs(collection(db, 'transactions'));
-      const transactionsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Transactions[];
+    async function fetchData() {
+      const transactionsData = await fetchTransactions();
       setTransactions(transactionsData);
     }
 
-    fetchTransactions();
+    fetchData();
   }, []);
 
   async function createTransaction(transactionInput: TransactionInputProps) {
-    const docRef = await addDoc(collection(db, 'transactions'), {
-      ...transactionInput,
-      createdAt: new Date().toISOString(),
-    });
-    const newTransaction = { id: docRef.id, ...transactionInput, createdAt: new Date().toISOString() };
+    const newTransaction = await createTransactionAPI(transactionInput);
     setTransactions([...transactions, newTransaction]);
   }
 
