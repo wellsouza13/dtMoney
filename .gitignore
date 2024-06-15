@@ -1,10 +1,38 @@
-# Arquivo .gitignore
-
-# Ignorar arquivo de variáveis de ambiente
-.env
-
-# Ignorar diretório node_modules
+# Node modules
 node_modules/
 
-# Ignorar arquivo de bloqueio do Yarn
-yarn.lock
+# Environment variables
+.env
+
+# Build output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# System files
+.DS_Store
+Thumbs.db

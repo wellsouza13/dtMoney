@@ -4,11 +4,12 @@ import {
   useState,
   ReactNode,
   useContext,
-} from "react";
-import { api } from "../services/api";
+} from 'react';
+import { db } from '../firebaseConfig';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 interface Transactions {
-  id: number;
+  id: string; // Ajuste o tipo do ID para string, conforme necessário para o Firestore
   title: string;
   amount: number;
   type: string;
@@ -20,11 +21,11 @@ interface TransactionsProviderProps {
   children: ReactNode;
 }
 
-type TransactionInputProps = Omit<Transactions, "id" | "createdAt">;
+type TransactionInputProps = Omit<Transactions, 'id' | 'createdAt'>;
 
 interface TransactionContextDataProps {
   transactions: Transactions[];
-  createTransaction: (transactions: TransactionInputProps) => Promise<void>;
+  createTransaction: (transactionInput: TransactionInputProps) => Promise<void>;
 }
 
 const TransactionsContext = createContext<TransactionContextDataProps>(
@@ -33,20 +34,27 @@ const TransactionsContext = createContext<TransactionContextDataProps>(
 
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transactions[]>([]);
+
   useEffect(() => {
-    api
-      .get("/transactions")
-      .then((response) => setTransactions(response.data.transactions));
+    async function fetchTransactions() {
+      const querySnapshot = await getDocs(collection(db, 'transactions'));
+      const transactionsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Transactions[];
+      setTransactions(transactionsData);
+    }
+
+    fetchTransactions();
   }, []);
 
   async function createTransaction(transactionInput: TransactionInputProps) {
-    const response = await api.post("/transactions", {
+    const docRef = await addDoc(collection(db, 'transactions'), {
       ...transactionInput,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     });
-    const { transaction } = response.data;
-
-    setTransactions([...transactions, transaction]);
+    const newTransaction = { id: docRef.id, ...transactionInput, createdAt: new Date().toISOString() };
+    setTransactions([...transactions, newTransaction]);
   }
 
   return (
@@ -58,6 +66,5 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
 
 export function useTransactions() {
   const context = useContext(TransactionsContext);
-
   return context;
 }
