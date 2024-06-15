@@ -1,0 +1,10 @@
+# Arquivo .gitignore
+
+# Ignorar arquivo de variáveis de ambiente
+.env
+
+# Ignorar diretório node_modules
+node_modules/
+
+# Ignorar arquivo de bloqueio do Yarn
+yarn.lock
