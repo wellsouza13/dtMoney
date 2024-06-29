@@ -1,6 +1,8 @@
+// hooks/useTransaction.tsx
 import React, { createContext, useEffect, useState, ReactNode, useContext } from 'react';
-import { collection, getDocs, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import { collection, query, where, getDocs, addDoc, Timestamp } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { db, auth } from '../../firebaseConfig';
 
 interface Transactions {
   id: string;
@@ -9,13 +11,14 @@ interface Transactions {
   type: string;
   category: string;
   createdAt: string;
+  uid: string;
 }
 
 interface TransactionsProviderProps {
   children: ReactNode;
 }
 
-type TransactionInputProps = Omit<Transactions, 'id' | 'createdAt'>;
+type TransactionInputProps = Omit<Transactions, 'id' | 'createdAt' | 'uid'>;
 
 interface TransactionContextDataProps {
   transactions: Transactions[];
@@ -28,28 +31,35 @@ const TransactionsContext = createContext<TransactionContextDataProps>(
 
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transactions[]>([]);
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     async function fetchTransactions() {
-      const querySnapshot = await getDocs(collection(db, 'transactions'));
-      const transactionsData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt.toDate().toISOString(), 
-        } as Transactions;
-      });
-      setTransactions(transactionsData);
+      if (user) {
+        const q = query(collection(db, 'transactions'), where('uid', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        const transactionsData = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt.toDate().toISOString(),
+          } as Transactions;
+        });
+        setTransactions(transactionsData);
+      }
     }
 
     fetchTransactions();
-  }, []);
+  }, [user]);
 
   async function createTransaction(transactionInput: TransactionInputProps) {
+    if (!user) return;
+
     const newTransaction = {
       ...transactionInput,
       createdAt: Timestamp.now(),
+      uid: user.uid,
     };
     const docRef = await addDoc(collection(db, 'transactions'), newTransaction);
     setTransactions((prevTransactions) => [
