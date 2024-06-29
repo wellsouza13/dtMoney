@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../firebaseConfig';
-import Login from '../pages/Login';
+import Login from '../pages/Login/Login';
 import { DashBoard } from '../components/Dashboard';
 
 const Routes: React.FC = () => {
