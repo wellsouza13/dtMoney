@@ -4,6 +4,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FcGoogle } from 'react-icons/fc';
 
 const Container = styled.div`
   height: 100vh;
@@ -23,6 +24,7 @@ const LoginForm = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: center;
 
   h2 {
     color: var(--text-title);
@@ -30,13 +32,16 @@ const LoginForm = styled.div`
   }
 
   button {
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     border-radius: 0.25rem;
     border: 0;
     background: var(--blue);
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     transition: filter 0.2s;
 
     &:hover {
@@ -60,8 +65,11 @@ const Login: React.FC = () => {
   return (
     <Container>
       <LoginForm>
-        <h2>Login</h2>
-        <button onClick={handleGoogleLogin}>Login with Google</button>
+        <h2>Entre com o Gmail</h2>
+        <button onClick={handleGoogleLogin}>
+          <FcGoogle size={24} />
+          Login with Google
+        </button>
       </LoginForm>
     </Container>
   );

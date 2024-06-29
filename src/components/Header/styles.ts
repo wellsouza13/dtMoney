@@ -28,3 +28,8 @@ export const Content = styled.div`
     }
   }
 `;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+`;

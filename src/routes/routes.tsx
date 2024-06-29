@@ -19,6 +19,7 @@ const Routes: React.FC = () => {
 
   return (
     <RouterRoutes>
+      <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={user ? <DashBoard /> : <Navigate to="/login" />} />
     </RouterRoutes>
